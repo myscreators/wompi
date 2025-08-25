@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wompi Payment Method - Documentación Técnica</title>
+    <link href="https://cdn.jsdelivr.net/gh/Alishan551797/css-cdn-links@main/css/all.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #146ef5;
+            --secondary-color: #141415;
+            --accent-color: #00cec9;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --error-color: #e17055;
+            --dark-color: #2d3436;
+            --light-color: #ddd6fe;
+            --bg-gradient: linear-gradient(135deg, #61bdff 0%, #1e63ff 100%);
+            --card-shadow: 0 20px 40px rgba(108, 92, 231, 0.1);
+            --text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header espectacular */
+        .hero-header {
+            background: linear-gradient(135deg, #61bdff 0%, #1e63ff 100%);
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            color: white;
+            text-shadow: var(--text-shadow);
+            margin-bottom: 20px;
+            animation: slideInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
+            animation: slideInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            animation: slideInUp 1s ease-out 0.4s both;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Navegación flotante */
+        .floating-nav {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 10px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        /* Contenido principal */
+        .main-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            margin: -50px auto 0;
+            border-radius: 30px 30px 0 0;
+            padding: 80px 40px 40px;
+            min-height: 80vh;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Secciones */
+        .section {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSection 0.6s ease-out forwards;
+        }
+
+        .section:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+
+        .section:nth-child(odd) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInSection {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .section-header:hover {
+            transform: translateX(10px);
+        }
+
+        .section-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-content {
+            margin-left: 70px;
+            transition: all 0.5s ease;
+            max-height: none;
+            overflow: hidden;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            margin-left: 0;
+            opacity: 0;
+        }
+
+        /* Cards especiales */
+        .info-card {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1) 0%, rgba(162, 155, 254, 0.05) 100%);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .warning-card {
+            background: linear-gradient(135deg, rgba(253, 203, 110, 0.1) 0%, rgba(253, 203, 110, 0.05) 100%);
+            border-color: var(--warning-color);
+        }
+
+        .success-card {
+            background: linear-gradient(135deg, rgba(0, 184, 148, 0.1) 0%, rgba(0, 184, 148, 0.05) 100%);
+            border-color: var(--success-color);
+        }
+
+        .error-card {
+            background: linear-gradient(135deg, rgba(225, 112, 85, 0.1) 0%, rgba(225, 112, 85, 0.05) 100%);
+            border-color: var(--error-color);
+        }
+
+        /* Código */
+        code {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: #00cec9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: #ddd;
+            padding: 25px;
+            border-radius: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Tablas espectaculares */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        tr:hover td {
+            background: rgba(108, 92, 231, 0.05);
+            transform: scale(1.02);
+        }
+
+        th:first-child,
+        td:first-child {
+            border-top-left-radius: 15px;
+        }
+
+        th:last-child,
+        td:last-child {
+            border-top-right-radius: 15px;
+        }
+
+        /* Listas mejoradas */
+        ul, ol {
+            margin: 20px 0;
+        }
+
+        li {
+            margin: 10px 0;
+            padding-left: 10px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '✦';
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+        }
+
+        /* Botones y enlaces */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--bg-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(108, 92, 231, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .floating-nav {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 40px 20px;
+                margin-top: -30px;
+            }
+            
+            .section-content {
+                margin-left: 0;
+            }
+            
+            .section-icon {
+                font-size: 2rem;
+                margin-right: 15px;
+            }
+            
+            .hero-header {
+                padding: 60px 0;
+            }
+        }
+
+        /* Animaciones suaves */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Efectos de hover mejorados */
+        .section-header:hover .section-icon {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Hero -->
+    <header class="hero-header">
+        <div class="hero-content container">
+            <h1 class="hero-title">
+                <i class="fas fa-credit-card"></i>
+                Wompi Payment Method
+            </h1>
+            <p class="hero-subtitle">Documentación Técnica Completa para M&S CRM</p>
+            <div class="hero-badges">
+                <span class="badge"><i class="fas fa-shield-alt"></i> Seguro</span>
+                <span class="badge"><i class="fas fa-bolt"></i> Rápido</span>
+                <span class="badge"><i class="fas fa-cogs"></i> Configurable</span>
+                <span class="badge"><i class="fas fa-mobile-alt"></i> Responsive</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación flotante -->
+    <nav class="floating-nav">
+        <a href="#intro" class="nav-item"><i class="fas fa-home"></i></a>
+        <a href="#requisitos" class="nav-item"><i class="fas fa-list-check"></i></a>
+        <a href="#instalacion" class="nav-item"><i class="fas fa-download"></i></a>
+        <a href="#configuracion" class="nav-item"><i class="fas fa-cog"></i></a>
+        <a href="#checkout" class="nav-item"><i class="fas fa-shopping-cart"></i></a>
+        <a href="#enlaces" class="nav-item"><i class="fas fa-link"></i></a>
+        <a href="#transacciones" class="nav-item"><i class="fas fa-exchange-alt"></i></a>
+        <a href="#webhooks" class="nav-item"><i class="fas fa-webhook"></i></a>
+        <a href="#seguridad" class="nav-item"><i class="fas fa-lock"></i></a>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="main-content container">
+        
+        <!-- Introducción -->
+        <section id="intro" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-info-circle section-icon"></i>
+                <h2 class="section-title">Introducción</h2>
+            </div>
+            <div class="section-content">
+                <div class="info-card">
+                    <p>El plugin <strong>Wompi Payment Method</strong> añade un medio de pago en <strong>M&S CRM</strong> para cobrar facturas a través de la pasarela colombiana <strong>Wompi</strong>. Permite dos modos de integración: <strong>Web Checkout</strong> (redirección) y <strong>Enlaces de pago</strong>.</p>
+                    
+                    <p>El propósito de este documento es explicar paso a paso cómo instalar, configurar y utilizar el módulo, además de detallar el flujo de pago, las claves necesarias, las notificaciones (webhooks) y las consideraciones de seguridad.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-list-check section-icon"></i>
+                <h2 class="section-title">Requisitos Previos</h2>
+            </div>
+            <div class="section-content">
+                <div class="warning-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Importante</h3>
+                    <ul>
+                        <li><strong>Versión de M&S:</strong> el plugin está diseñado para M&S CRM >= 3.x. Asegúrate de utilizar una versión estable.</li>
+                        <li><strong>Cuenta en Wompi:</strong> necesitas una cuenta de comercio en <a href="https://comercios.wompi.co" style="color: var(--primary-color);">Wompi</a>.</li>
+                        <li><strong>Servidor con HTTPS:</strong> Wompi recomienda emplear HTTPS tanto para el formulario de pago como para la URL de eventos (webhook).</li>
+                        <li><strong>Conocimientos básicos de M&S:</strong> debes tener acceso al panel de administración y derechos para instalar plugins.</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-key"></i> Claves y Secretos</h3>
+                    <p>En la sección "Desarrolladores → Claves y secretos técnicos" obtendrás:</p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Sandbox</th>
+                                    <th>Producción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Clave Pública</td>
+                                    <td><code>pub_test_</code></td>
+                                    <td><code>pub_prod_</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Clave Privada</td>
+                                    <td><code>prv_test_</code></td>
+                                    <td><code>prv_prod_</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Secreto Eventos</td>
+                                    <td><code>test_events_</code></td>
+                                    <td><code>prod_events_</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Secreto Integridad</td>
+                                    <td><code>test_integrity_</code></td>
+                                    <td><code>prod_integrity_</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instalación -->
+        <section id="instalacion" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-download section-icon"></i>
+                <h2 class="section-title">Instalación del Plugin</h2>
+            </div>
+            <div class="section-content">
+                <div class="success-card">
+                    <h3><i class="fas fa-rocket"></i> Proceso de Instalación</h3>
+                    <ol>
+                        <li><strong>Descarga y extracción:</strong> Tras adquirir el plugin, descarga <code>Wompi_Payment_Method.zip</code> y extrae el contenido.</li>
+                        <li><strong>Carga en directorio:</strong> Copia <code>Wompi_Payment_Method</code> dentro de <code>app/Modules</code> o <code>custom/Modules</code>.</li>
+                        <li><strong>Base de datos:</strong> Ejecuta <code>/wompi_payment_method/install/do_install.php</code> o importa <code>database.sql</code>.</li>
+                        <li><strong>Activación:</strong> En M&S, ve a <strong>Settings → Payment Methods</strong> y activa <strong>Wompi</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuración -->
+        <section id="configuracion" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-cog section-icon"></i>
+                <h2 class="section-title">Configuración del Método de Pago</h2>
+            </div>
+            <div class="section-content">
+                <div class="info-card">
+                    <h3><i class="fas fa-key"></i> Claves y Secretos</h3>
+                    <ul>
+                        <li><strong>Clave pública:</strong> Obligatoria, prefijo <code>pub_</code>, se usa en Web Checkout.</li>
+                        <li><strong>Clave privada:</strong> Solo para Enlaces de pago, prefijo <code>prv_</code>.</li>
+                        <li><strong>Secreto de integridad:</strong> Para validar firma <code>signature:integrity</code>.</li>
+                        <li><strong>Secreto de eventos:</strong> Para validar webhooks con <code>X-Event-Checksum</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="warning-card">
+                    <h3><i class="fas fa-cogs"></i> Otros Campos Importantes</h3>
+                    <ul>
+                        <li><strong>Ambiente:</strong> <code>sandbox</code> para pruebas, <code>producción</code> para vivo.</li>
+                        <li><strong>Prefijo de referencia:</strong> Personaliza referencias (ej: <code>MS-</code>).</li>
+                        <li><strong>Forzar moneda:</strong> Usa <code>COP</code> para Colombia.</li>
+                        <li><strong>Monto mínimo:</strong> Establece valor mínimo para pagos.</li>
+                        <li><strong>Pagos parciales:</strong> Permite montos menores al saldo.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Web Checkout -->
+        <section id="checkout" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-shopping-cart section-icon"></i>
+                <h2 class="section-title">Flujo de Pago con Web Checkout</h2>
+            </div>
+            <div class="section-content">
+                <div class="info-card">
+                    <h3><i class="fas fa-route"></i> Proceso Paso a Paso</h3>
+                    <ol>
+                        <li><strong>Inicio:</strong> Cliente hace clic en "Pagar con Wompi" → M&S genera código de verificación.</li>
+                        <li><strong>Redirección:</strong> Plugin construye URL <code>/wompi_payment_method/checkout/&lt;verification_code&gt;</code>.</li>
+                        <li><strong>Firma:</strong> Se calcula SHA256 con: referencia + monto + moneda + secret.</li>
+                        <li><strong>Formulario:</strong> Se envían parámetros a <code>https://checkout.wompi.co/p/</code>.</li>
+                        <li><strong>Pago:</strong> Usuario completa datos en interfaz Wompi.</li>
+                        <li><strong>Retorno:</strong> Wompi redirige con parámetro <code>id</code> de transacción.</li>
+                    </ol>
+                </div>
+
+                <div class="success-card">
+                    <h3><i class="fas fa-shield-alt"></i> Firma de Integridad</h3>
+                    <p>La firma se construye concatenando:</p>
+                    <pre><code>referencia + monto_en_centavos + moneda + integrity_secret
+↓ SHA256 ↓
+signature:integrity</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enlaces de Pago -->
+        <section id="enlaces" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-link section-icon"></i>
+                <h2 class="section-title">Enlaces de Pago (Payment Links)</h2>
+            </div>
+            <div class="section-content">
+                <div class="info-card">
+                    <h3><i class="fas fa-external-link-alt"></i> Funcionalidad</h3>
+                    <p>Los <strong>Enlaces de pago</strong> generan un link único mediante la API de Wompi. Útil para enviar por correo, chat o redes sociales.</p>
+                </div>
+
+                <div class="warning-card">
+                    <h3><i class="fas fa-code"></i> Requisitos Técnicos</h3>
+                    <ol>
+                        <li><strong>Clave privada:</strong> Configurar <code>prv_test_</code> o <code>prv_prod_</code>.</li>
+                        <li><strong>API Request:</strong> POST a <code>/v1/payment_links</code> con header <code>Authorization: Bearer &lt;private_key&gt;</code>.</li>
+                        <li><strong>Parámetros:</strong> JSON con <code>name</code>, <code>description</code>, <code>single_use</code>, etc.</li>
+                        <li><strong>Respuesta:</strong> HTTP 201 con <code>data.url</code> del enlace público.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transacciones -->
+        <section id="transacciones" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-exchange-alt section-icon"></i>
+                <h2 class="section-title">Gestión de Transacciones y Estados</h2>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Descripción</th>
+                                <th>Acción en M&S</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>APPROVED</code></td>
+                                <td>Transacción autorizada y pago capturado</td>
+                                <td>✅ Registrar pago</td>
+                            </tr>
+                            <tr>
+                                <td><code>DECLINED</code></td>
+                                <td>Transacción rechazada por medio de pago</td>
+                                <td>❌ Mostrar error</td>
+                            </tr>
+                            <tr>
+                                <td><code>VOIDED</code></td>
+                                <td>Transacción anulada (solo tarjetas)</td>
+                                <td>❌ No registrar</td>
+                            </tr>
+                            <tr>
+                                <td><code>ERROR</code></td>
+                                <td>Error interno en medio de pago</td>
+                                <td>❌ Mostrar error</td>
+                            </tr>
+                            <tr>
+                                <td><code>PENDING</code></td>
+                                <td>Estado transitorio</td>
+                                <td>⏳ Esperar evento</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-search"></i> Consulta de Estados</h3>
+                    <p>Puedes conocer el estado mediante:</p>
+                    <ul>
+                        <li><strong>Consulta API:</strong> <code>GET /v1/transactions/{id}</code></li>
+                        <li><strong>Eventos webhook:</strong> <code>transaction.updated</code> automático</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Webhooks -->
+        <section id="webhooks" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-webhook section-icon"></i>
+                <h2 class="section-title">Webhooks y Notificaciones</h2>
+            </div>
+            <div class="section-content">
+                <div class="success-card">
+                    <h3><i class="fas fa-bell"></i> Características Generales</h3>
+                    <ul>
+                        <li><strong>Estructura:</strong> JSON con <code>event</code>, <code>data</code> y <code>sent_at</code></li>
+                        <li><strong>Confirmación:</strong> Responder HTTP 200, sino reintenta 3 veces en 24h</li>
+                        <li><strong>HTTPS:</strong> Recomendado para la URL de eventos</li>
+                        <li><strong>Evento principal:</strong> <code>transaction.updated</code> cuando cambia a estado final</li>
+                    </ul>
+                </div>
+
+                <div class="error-card">
+                    <h3><i class="fas fa-lock"></i> Seguridad de Eventos</h3>
+                    <p>Wompi incluye un <strong>checksum</strong> en header <code>X-Event-Checksum</code> para verificar autenticidad.</p>
+                    
+                    <h4>Algoritmo de Verificación (SHA256):</h4>
+                    <pre><code>1. Concatenar valores de signature.properties
+2. Añadir timestamp del evento  
+3. Añadir events_secret
+4. Calcular SHA256 y comparar con checksum</code></pre>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-cog"></i> Configuración en M&S</h3>
+                    <ol>
+                        <li>En Wompi: <strong>Desarrolladores → URL de eventos</strong></li>
+                        <li>URL: <code>/wompi_payment_method/webhook/&lt;secreto_opcional&gt;</code></li>
+                        <li>Verificar acceso HTTPS desde internet</li>
+                        <li>Validar que <code>events_secret</code> coincida</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seguridad -->
+        <section id="seguridad" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-lock section-icon"></i>
+                <h2 class="section-title">Seguridad y Buenas Prácticas</h2>
+            </div>
+            <div class="section-content">
+                <div class="error-card">
+                    <h3><i class="fas fa-shield-alt"></i> Medidas de Seguridad Críticas</h3>
+                    <ul>
+                        <li><strong>Claves privadas:</strong> Nunca expongas en frontend, solo en servidor</li>
+                        <li><strong>HTTPS obligatorio:</strong> Formulario de pago y webhook con SSL</li>
+                        <li><strong>Firma en servidor:</strong> Generar <code>signature:integrity</code> server-side</li>
+                        <li><strong>Ambiente correcto:</strong> No mezclar claves sandbox con producción</li>
+                        <li><strong>Logs activos:</strong> Registrar errores para diagnóstico</li>
+                        <li><strong>Actualizaciones:</strong> Mantener plugin actualizado</li>
+                    </ul>
+                </div>
+
+                <div class="warning-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Prefijos de Claves por Ambiente</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ambiente</th>
+                                    <th>URL Base</th>
+                                    <th>Prefijos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sandbox</td>
+                                    <td><code>https://sandbox.wompi.co/v1</code></td>
+                                    <td><code>pub_test_</code>, <code>prv_test_</code>, <code>test_events_</code>, <code>test_integrity_</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Producción</td>
+                                    <td><code>https://production.wompi.co/v1</code></td>
+                                    <td><code>pub_prod_</code>, <code>prv_prod_</code>, <code>prod_events_</code>, <code>prod_integrity_</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pruebas -->
+        <section id="pruebas" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-vial section-icon"></i>
+                <h2 class="section-title">Pruebas y Verificación</h2>
+            </div>
+            <div class="section-content">
+                <div class="success-card">
+                    <h3><i class="fas fa-check-circle"></i> Lista de Verificación</h3>
+                    <ol>
+                        <li><strong>Test de conexión:</strong> Usar <code>test_connection()</code> desde configuración</li>
+                        <li><strong>Ambiente sandbox:</strong> Realizar transacciones de prueba con tarjetas test</li>
+                        <li><strong>Firma de integridad:</strong> Verificar concatenación y secreto correcto</li>
+                        <li><strong>Webhook funcional:</strong> Confirmar recepción de <code>transaction.updated</code></li>
+                    </ol>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-bug"></i> Diagnóstico Automático</h3>
+                    <p>La función <code>test_connection()</code> valida:</p>
+                    <ul>
+                        <li>✅ Formato correcto de clave pública (prefijo <code>pub_</code>)</li>
+                        <li>✅ Configuración de <code>integrity_secret</code> y <code>events_secret</code></li>
+                        <li>✅ Acceso al endpoint de enlaces de pago (si hay clave privada)</li>
+                        <li>✅ Coherencia entre ambiente y prefijos de claves</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solución de Problemas -->
+        <section id="problemas" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-tools section-icon"></i>
+                <h2 class="section-title">Solución de Problemas Comunes</h2>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Problema</th>
+                                <th>Causa y Solución</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Invalid signature</code></td>
+                                <td>
+                                    <strong>Causa:</strong> Firma <code>signature:integrity</code> incorrecta<br>
+                                    <strong>Solución:</strong> Verificar concatenación: referencia + monto_centavos + moneda + integrity_secret. Usar secreto del ambiente correcto.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Redirección errónea</td>
+                                <td>
+                                    <strong>Causa:</strong> URL <code>redirect-url</code> mal configurada<br>
+                                    <strong>Solución:</strong> Revisar configuración del método de pago. Si está vacía, Wompi usa URL predeterminada + parámetro <code>id</code>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Eventos no llegan</td>
+                                <td>
+                                    <strong>Causa:</strong> Webhook mal configurado o bloqueado<br>
+                                    <strong>Solución:</strong> Verificar URL en cuenta Wompi, usar HTTPS, responder HTTP 200, validar <code>events_secret</code>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>PENDING</code> persistente</td>
+                                <td>
+                                    <strong>Causa:</strong> Transacciones PSE/Nequi tardan minutos<br>
+                                    <strong>Solución:</strong> Esperar evento <code>transaction.updated</code>. Revisar en plataforma Wompi si persiste.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Error <code>401</code> enlaces</td>
+                                <td>
+                                    <strong>Causa:</strong> Clave privada inválida o ambiente incorrecto<br>
+                                    <strong>Solución:</strong> Usar <code>prv_test_</code> en sandbox, <code>prv_prod_</code> en producción.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monto mínimo no respetado</td>
+                                <td>
+                                    <strong>Causa:</strong> Valor enviado menor al configurado<br>
+                                    <strong>Solución:</strong> Verificar monto mínimo en configuración. Con pagos parciales, respetar mínimo aunque sea menor al saldo.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Prefijo clave incorrecto</td>
+                                <td>
+                                    <strong>Causa:</strong> Mezclar claves de diferentes ambientes<br>
+                                    <strong>Solución:</strong> Todas las claves deben tener mismo prefijo según ambiente (<code>test_</code> o <code>prod_</code>).
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusión -->
+        <section id="conclusion" class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <i class="fas fa-flag-checkered section-icon"></i>
+                <h2 class="section-title">Conclusión</h2>
+            </div>
+            <div class="section-content">
+                <div class="success-card">
+                    <h3><i class="fas fa-trophy"></i> Integración Completa</h3>
+                    <p>El plugin <strong>Wompi Payment Method</strong> para <strong>M&S CRM</strong> proporciona una integración robusta con la pasarela Wompi, permitiendo cobrar facturas mediante:</p>
+                    <ul>
+                        <li>🛒 <strong>Web Checkout</strong> (redirección)</li>
+                        <li>🔗 <strong>Enlaces de pago</strong> (API)</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-lightbulb"></i> Puntos Clave para el Éxito</h3>
+                    <ul>
+                        <li>✨ Comprender estructura de claves y secretos</li>
+                        <li>🔐 Generar correctamente firma de integridad</li>
+                        <li>📊 Manejar adecuadamente estados de transacciones</li>
+                        <li>🔔 Configurar apropiadamente webhook</li>
+                        <li>🧪 Probar siempre en ambiente sandbox</li>
+                        <li>🛡️ Proteger secretos y usar HTTPS</li>
+                    </ul>
+                </div>
+
+                <div class="warning-card">
+                    <h3><i class="fas fa-rocket"></i> ¡Listo para Producción!</h3>
+                    <p>Siguiendo esta documentación y las recomendaciones de Wompi, tendrás un proceso de cobro <strong>fiable</strong> y <strong>seguro</strong>. Podrás aceptar pagos en línea de manera fácil y profesional.</p>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="#intro" class="btn">
+                            <i class="fas fa-arrow-up"></i> Volver al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Función para alternar secciones
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+            
+            // Rotar icono
+            const icon = header.querySelector('.section-icon');
+            if (content.classList.contains('collapsed')) {
+                icon.style.transform = 'rotate(-90deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Smooth scroll para navegación
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Efectos de parallax suave
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroHeader = document.querySelector('.hero-header');
+            
+            if (heroHeader) {
+                heroHeader.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Animación de entrada para secciones
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observar todas las secciones
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Actualizar navegación activa
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 200;
+                if (scrollY >= sectionTop) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${currentSection}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Efectos hover adicionales
+        document.querySelectorAll('.info-card, .warning-card, .success-card, .error-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Ocultar navegación flotante en móvil
+        function checkMobile() {
+            const nav = document.querySelector('.floating-nav');
+            if (window.innerWidth <= 768) {
+                nav.style.display = 'none';
+            } else {
+                nav.style.display = 'block';
+            }
+        }
+
+        window.addEventListener('resize', checkMobile);
+        checkMobile();
+
+        // Añadir clase active para navegación
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-item.active {
+                background: var(--primary-color) !important;
+                color: white !important;
+                transform: translateX(-5px) scale(1.1);
+                box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
